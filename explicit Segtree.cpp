@@ -1,8 +1,8 @@
-// explicit Segtree
+const int N = 200005;
 
 struct Segtree
 {
-	ll sum, max_seg, prefix, suffix;
+	int max_seg;
 };
 
 Segtree t[4 * N];
@@ -11,30 +11,20 @@ Segtree combine(Segtree a, Segtree b)
 {
 	Segtree res;
 
-	res.sum = a.sum + b.sum;
-
-	res.max_seg = max({a.max_seg, b.max_seg, a.suffix + b.prefix});
-
-	res.prefix = max(a.prefix, a.sum + b.prefix);
-
-	res.suffix = max(b.suffix, b.sum + a.suffix);
+	res.max_seg = max({a.max_seg, b.max_seg});
 
 	return res;
 }
 
-void build(ll node, ll leftmost, ll rightmost, ll a[])
+void build(int node, int leftmost, int rightmost, int a[])
 {
 	if (leftmost == rightmost)
 	{
-		t[node].sum = a[leftmost];
-		t[node].prefix = a[leftmost];
-		t[node].suffix = a[leftmost];
 		t[node].max_seg = a[leftmost];
-
 		return;
 	}
 
-	ll mid = (leftmost + rightmost) / 2;
+	int mid = (leftmost + rightmost) / 2;
 
 	build(2 * node, leftmost, mid, a);
 
@@ -43,22 +33,18 @@ void build(ll node, ll leftmost, ll rightmost, ll a[])
 	t[node] = combine(t[2 * node], t[2 * node + 1]);
 }
 
-void update(ll node, ll leftmost, ll rightmost, ll index, ll val)
+void update(int node, int leftmost, int rightmost, int index, int val)
 {
 	if (leftmost == index &&  rightmost == index)
 	{
-		t[node].sum = val;
-		t[node].prefix = val;
-		t[node].suffix = val;
 		t[node].max_seg = val;
-
 		return;
 	}
 
 	if (index > rightmost || index < leftmost)
 		return;
 
-	ll mid = (leftmost + rightmost) / 2;
+	int mid = (leftmost + rightmost) / 2;
 
 	update(2 * node, leftmost, mid, index, val);
 
@@ -68,17 +54,13 @@ void update(ll node, ll leftmost, ll rightmost, ll index, ll val)
 
 }
 
-Segtree Query(ll node, ll leftmost , ll rightmost, ll l , ll r)
+Segtree Query(int node, int leftmost , int rightmost, int l , int r)
 {
 	if (l > rightmost || r < leftmost)
 	{
 		Segtree res;
 
-		res.sum = 0;
-
-		res.prefix = -10007;
-		res.suffix = -10007;
-		res.max_seg = -10007;
+		res.max_seg = 0;
 
 		return res;
 	}
@@ -88,7 +70,7 @@ Segtree Query(ll node, ll leftmost , ll rightmost, ll l , ll r)
 		return t[node];
 	}
 
-	ll mid = (leftmost + rightmost) / 2;
+	int mid = (leftmost + rightmost) / 2;
 
 	return combine(Query(2 * node, leftmost, mid, l, r), Query(2 * node + 1, mid + 1, rightmost, l, r));
 }
